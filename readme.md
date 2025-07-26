@@ -1,4 +1,8 @@
+![chrome builtin](https://github.com/user-attachments/assets/69d525e4-74dd-4870-bcf4-38a098039a55)
+
 # AI Text Generator - Chrome Built-in Prompting
+
+[Checkout the Codelab](https://gradus.dev/labs/chrome-built-in-ai-apis-CzUKri)
 
 A modern, elegant web application that leverages Chrome's built-in Language Model API to generate creative text content. This project provides a beautiful, responsive interface for AI-powered text generation directly in your browser.
 
