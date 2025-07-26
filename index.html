@@ -1,1 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Text Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #fafafa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: rgba(0, 0, 0, 0.87);
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            width: 100%;
+            max-width: 600px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            color: #1976d2;
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 8px;
+            letter-spacing: 0.15px;
+        }
+
+        .header p {
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(0, 0, 0, 0.87);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .text-field {
+            position: relative;
+            width: 100%;
+        }
+
+        #prompt {
+            width: 100%;
+            padding: 16px 12px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: rgba(0, 0, 0, 0.87);
+            outline: none;
+        }
+
+        #prompt:focus {
+            border-color: #1976d2;
+            border-width: 2px;
+            padding: 15px 11px;
+        }
+
+        #prompt::placeholder {
+            color: rgba(0, 0, 0, 0.38);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0 16px;
+            height: 36px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Roboto', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: rgba(0, 0, 0, 0.87);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: #eeeeee;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .status-section {
+            margin-bottom: 24px;
+        }
+
+        .status-card {
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            border-left: 4px solid;
+        }
+
+        #availability {
+            background: #e3f2fd;
+            border-left-color: #1976d2;
+        }
+
+        #availability p {
+            color: rgba(0, 0, 0, 0.87);
+            font-weight: 400;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        #availability-status {
+            font-weight: 500;
+        }
+
+        #loading {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+            text-align: center;
+        }
+
+        #loading p {
+            color: rgba(0, 0, 0, 0.87);
+            font-weight: 400;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e0e0e0;
+            border-top: 2px solid #1976d2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .output-section {
+            background: #fafafa;
+            border-radius: 4px;
+            padding: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            min-height: 120px;
+        }
+
+        .output-section h3 {
+            color: rgba(0, 0, 0, 0.87);
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        #output {
+            color: rgba(0, 0, 0, 0.87);
+            line-height: 1.5;
+            white-space: pre-wrap;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .empty-output {
+            color: rgba(0, 0, 0, 0.38);
+            font-style: italic;
+        }
+
+        .material-icon {
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+                margin: 8px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(16px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Material Design ripple effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .ripple:active::after {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container fade-in">
+        <div class="header">
+            <h1>AI Text Generator</h1>
+            <p>Generate creative text with advanced language models</p>
+        </div>
+
+        <div class="input-group">
+            <label for="prompt">Enter your prompt</label>
+            <div class="text-field">
+                <input type="text" id="prompt" placeholder="Tell me a story about a magical forest...">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary ripple" id="generate">
+                <span class="material-icons material-icon">auto_awesome</span>
+                Generate Text
+            </button>
+            <button class="btn btn-secondary ripple" id="checkAvailability">
+                <span class="material-icons material-icon">search</span>
+                Check Availability
+            </button>
+        </div>
+
+        <div class="status-section">
+            <!-- Show Loading -->
+            <div id="loading" class="status-card" style="display: none;">
+                <p>
+                    <span class="spinner"></span>
+                    Generating your text...
+                </p>
+            </div>
+
+            <div id="availability" class="status-card" style="display: none;">
+                <p>Model availability: <span id="availability-status">Checking...</span></p>
+            </div>
+        </div>
+
+        <div class="output-section">
+            <h3>Generated Output</h3>
+            <div id="output" class="empty-output">Your generated text will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        async function checkAvailability() {
+            // Show the availability div
+            document.getElementById('availability').style.display = 'block';
+            
+            const availability = await LanguageModel.availability();
+            console.log('Model availability:', availability);
+
+            switch (availability) {
+                case 'available':
+                    console.log('✅ Model is ready to use');
+                    document.getElementById('availability-status').textContent = '✅ Model is ready to use';
+                    break;
+                case 'unavailable':
+                    console.log('❌ Model is not available');
+                    document.getElementById('availability-status').textContent = '❌ Model is not available';
+                    break;
+                case 'downloadable':
+                    console.log('⏳ Model can be downloaded');
+                    document.getElementById('availability-status').textContent = '⏳ Model can be downloaded';
+                    break;
+                case 'downloading':
+                    console.log('📥 Model is currently downloading');
+                    document.getElementById('availability-status').textContent = '📥 Model is currently downloading';
+                    break;
+            }
+        }
+
+        document.getElementById('checkAvailability').addEventListener('click', checkAvailability);
+        document.getElementById('generate').addEventListener('click', generateText);
+
+        // Add enter key support for the prompt input
+        document.getElementById('prompt').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateText();
+            }
+        });
+
+        async function generateText() {
+            const prompt = document.getElementById('prompt').value;
+            const outputElement = document.getElementById('output');
+            
+            if (!prompt.trim()) {
+                outputElement.textContent = 'Please enter a prompt first...';
+                outputElement.className = 'empty-output';
+                return;
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            outputElement.className = '';
+            
+            try {
+                const session = await LanguageModel.create();
+                const result = await session.prompt(prompt);
+                console.log('Generated text:', result);
+                outputElement.textContent = result;
+                document.getElementById('loading').style.display = 'none';
+                return result;
+            } catch (error) {
+                console.error('Error generating text:', error);
+                outputElement.textContent = 'Error generating text. Please try again.';
+                outputElement.className = 'empty-output';
+                document.getElementById('loading').style.display = 'none';
+                return null;
+            }
+        }
+    </script>
+</body>
+
+</html>
